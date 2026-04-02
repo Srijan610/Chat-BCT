@@ -2,4 +2,12 @@
     <string name="app_name">কথাবার্তা</string>
     <string name="hint_message">Type a message...</string>
     <string name="content_description_send">Send</string>
+    <string name="login_title">Welcome Back</string>
+    <string name="signup_title">Create Account</string>
+    <string name="hint_email">Email or Username</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Login</string>
+    <string name="btn_signup">Sign Up</string>
+    <string name="text_no_account">Don\'t have an account? Sign up</string>
+    <string name="text_have_account">Already have an account? Login</string>
 </resources>

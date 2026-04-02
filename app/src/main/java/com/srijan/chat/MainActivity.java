@@ -19,25 +19,18 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Handle the splash screen transition.
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
-
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         
-        // Handle Window Insets (including the keyboard/IME)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
-            
-            // Apply padding for status bar and navigation bar
-            // Use the maximum of systemBars bottom and ime bottom to handle keyboard appearing
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, Math.max(systemBars.bottom, imeInsets.bottom));
             return insets;
         });
 
-        // Setup Contacts List
         String[] sourceNames = {"Srijan Mondal", "Sk Masum Ali", "Sk Arien Ahmed"};
         List<NameAdapter.Contact> contacts = new ArrayList<>();
         Random random = new Random();
@@ -52,14 +45,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new NameAdapter(contacts));
 
-        // Setup Messaging UI
         EditText messageInput = findViewById(R.id.messageInput);
         ImageButton sendButton = findViewById(R.id.sendButton);
 
         sendButton.setOnClickListener(v -> {
             String message = messageInput.getText().toString().trim();
             if (!message.isEmpty()) {
-                // For now, just show a toast and clear the input
                 Toast.makeText(MainActivity.this, "Sending: " + message, Toast.LENGTH_SHORT).show();
                 messageInput.setText("");
             } else {
