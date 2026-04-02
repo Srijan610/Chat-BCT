@@ -1,9 +1,9 @@
 package com.srijan.chat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -12,15 +12,32 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    private List<Message> messageList = new ArrayList<>();
+    private ChatAdapter chatAdapter;
+    private DatabaseReference dbRef;
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+        if (mAuth.getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         
@@ -31,30 +48,47 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        String[] sourceNames = {"Srijan Mondal", "Sk Masum Ali", "Sk Arien Ahmed"};
-        List<NameAdapter.Contact> contacts = new ArrayList<>();
-        Random random = new Random();
-
-        for (int i = 0; i < 18; i++) {
-            String name = sourceNames[i % sourceNames.length];
-            String phone = "+91 " + (7000000000L + (long) (random.nextDouble() * 2999999999L));
-            contacts.add(new NameAdapter.Contact(name, phone));
-        }
+        findViewById(R.id.logoutButton).setOnClickListener(v -> {
+            mAuth.signOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        });
 
         RecyclerView recyclerView = findViewById(R.id.namesRecyclerView);
+        chatAdapter = new ChatAdapter(messageList, mAuth.getUid());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new NameAdapter(contacts));
+        recyclerView.setAdapter(chatAdapter);
+
+        dbRef = FirebaseDatabase.getInstance().getReference("messages");
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                messageList.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Message msg = data.getValue(Message.class);
+                    messageList.add(msg);
+                }
+                chatAdapter.notifyDataSetChanged();
+                if (!messageList.isEmpty()) {
+                    recyclerView.scrollToPosition(messageList.size() - 1);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {}
+        });
 
         EditText messageInput = findViewById(R.id.messageInput);
         ImageButton sendButton = findViewById(R.id.sendButton);
 
         sendButton.setOnClickListener(v -> {
-            String message = messageInput.getText().toString().trim();
-            if (!message.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Sending: " + message, Toast.LENGTH_SHORT).show();
+            String messageText = messageInput.getText().toString().trim();
+            if (!messageText.isEmpty() && mAuth.getCurrentUser() != null) {
+                String senderId = mAuth.getUid();
+                String senderEmail = mAuth.getCurrentUser().getEmail();
+                Message message = new Message(senderId, senderEmail, "global", messageText, System.currentTimeMillis());
+                dbRef.push().setValue(message);
                 messageInput.setText("");
-            } else {
-                Toast.makeText(MainActivity.this, "Please enter a message", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -12,15 +12,27 @@ import androidx.core.graphics.Insets;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
     private boolean isLoginMode = true;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
+        
+        mAuth = FirebaseAuth.getInstance();
+        if (mAuth.getCurrentUser() != null) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
 
@@ -59,14 +71,33 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             if (isLoginMode) {
-                Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
+                mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Login Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
             } else {
-                Toast.makeText(this, "Creating account...", Toast.LENGTH_SHORT).show();
+                mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            String uid = mAuth.getCurrentUser().getUid();
+                            Map<String, Object> user = new HashMap<>();
+                            user.put("uid", uid);
+                            user.put("email", email);
+                            user.put("name", email.split("@")[0]);
+                            FirebaseDatabase.getInstance().getReference("users").child(uid).setValue(user);
+                            
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Sign up Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
             }
-
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
         });
     }
 }
