@@ -4,16 +4,18 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#404040"
-        android:pathData="M68,42 m-22,0 a22,22 0 1,1 44,0 a22,22 0 1,1 -44,0" />
+    <!-- Minimal Chat Bubble -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M42,58 m-24,0 a24,24 0 1,1 48,0 a24,24 0 1,1 -48,0" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22,78 L42,78 L22,58 Z" />
+        android:pathData="M30,35 H78 C81,35 83,37 83,40 V65 C83,68 81,70 78,70 H45 L30,85 V70 H30 C27,70 25,68 25,65 V40 C25,37 27,35 30,35 Z" />
+    <!-- Three dots for "typing/message" effect -->
     <path
         android:fillColor="#000000"
-        android:pathData="M42,58 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0" />
+        android:pathData="M38,52.5 m-2.5,0 a2.5,2.5 0 1,1 5,0 a2.5,2.5 0 1,1 -5,0" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,52.5 m-2.5,0 a2.5,2.5 0 1,1 5,0 a2.5,2.5 0 1,1 -5,0" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M70,52.5 m-2.5,0 a2.5,2.5 0 1,1 5,0 a2.5,2.5 0 1,1 -5,0" />
 </vector>

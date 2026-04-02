@@ -47,7 +47,7 @@ public class NameAdapter extends RecyclerView.Adapter<NameAdapter.ViewHolder> {
         return contacts.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nameText;
         TextView phoneText;
         ViewHolder(View view) {
